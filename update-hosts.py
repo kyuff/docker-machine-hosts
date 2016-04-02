@@ -3,7 +3,7 @@
 import subprocess
 import re
 
-hosts = "hosts"
+hosts = "/etc/hosts"
 
 def run(command):
     pipe = subprocess.Popen(command, stdout=subprocess.PIPE)
