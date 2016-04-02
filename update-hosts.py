@@ -18,7 +18,7 @@ def list_new_entries():
         m = re.search('^([^#]*)#[^:]*://([^:]*):\d*$', line)
         name = m.group(1)
         ip = m.group(2)
-        entries.append("{0}\t{1}.local\n".format(ip, name))
+        entries.append("{0}\t{1}\n".format(ip, name))
     return entries
 
 
