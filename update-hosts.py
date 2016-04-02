@@ -1,26 +1,26 @@
 #!/usr/bin/python
 
-import subprocess
 import re
+import subprocess
 
 hosts = "/etc/hosts"
+tmp = "/tmp/hosts"
+
 
 def run(command):
     pipe = subprocess.Popen(command, stdout=subprocess.PIPE)
     return iter(pipe.stdout.readline, b"")
 
 
-def list_vms():
-    vms = []
-    for line in run(["VBoxManage", "list", "runningvms"]):
-        m = re.search('\"([^"]*)\"', line)
-        vms.append(m.group(1))
-    return vms
+def list_new_entries():
+    entries = []
+    for line in run(["docker-machine", "ls", "-f", r'{{.Name}}#{{.URL}}']):
+        m = re.search('^([^#]*)#[^:]*://([^:]*):\d*$', line)
+        name = m.group(1)
+        ip = m.group(2)
+        entries.append("{0}\t{1}.local\n".format(ip, name))
+    return entries
 
-def get_ip(vm):
-    for line in run(["VBoxManage", "guestproperty", "get", vm, "/VirtualBox/GuestInfo/Net/1/V4/IP"]):
-        m = re.search("Value:\s*([0-9\.]*)", line)
-        return m.group(1)
 
 file = open(hosts)
 
@@ -36,10 +36,17 @@ file.close()
 
 buffer += "# DOCKER HOSTS\n"
 
-for vm in list_vms():
-    ip = get_ip(vm)
-    buffer += "{0}\t{1}.local\n".format(ip, vm)
+for entry in list_new_entries():
+    buffer += entry
 
-file = open(hosts, "w")
+file = open(tmp, "w")
 file.write(buffer)
 file.close()
+
+print "Writing the following /etc/hosts:"
+print buffer
+for line in run(["cp", hosts, "{0}.bak".format(tmp)]):
+    print line
+
+for line in run(["sudo", "mv", tmp, hosts]):
+    print line

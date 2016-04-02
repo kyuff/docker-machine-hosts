@@ -1,7 +1,7 @@
-# Virtualbox Hosts
+# Docker Machine Hosts
 
-Script used while working with Docker on VirtualBox.
+Script used while working with Docker Machine
 
-For each VirtualBox machine, the script adds an entry of this form:
+For each Docker Machine, the script adds an entry of this form:
 
-[ip]  [vbox name].local
+[ip]  [machine name].local
